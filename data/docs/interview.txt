@@ -1,0 +1,31 @@
+Interview questions and answers
+1.	Tell me about your recent project
+In my most recent project, I worked with a UK-based consulting company called HubEurope, which provides e-commerce and logistics automation solutions. Our team of six developers followed DevOps principles to build and maintain a scalable backend system for handling order management, shipment tracking, and delivery automation. My main responsibility was backend development, where I designed and optimized database structures, integrated multiple third-party APIs such as DHL, eBay, and courier APIs, and automated the flow of orders and deliveries.
+
+I developed backend services using Python and FastAPI, and implemented AI-driven delivery automation using OpenAI APIs to optimize shipment routing and customer communication. I also worked on managing customer databases, ensuring smooth synchronization between different platforms, and improving performance through better API handling and caching mechanisms. Overall, this project strengthened my experience in backend architecture, API integration, and cloud-based DevOps workflows, while helping the client streamline their logistics operations and improve real-time tracking and customer satisfaction.
+
+2.	When can you start?
+I’ve just completed my master’s degree and I’m ready to start as soon as next week. Since I don’t have any notice period, I can be flexible with your preferred start date.
+
+3.	Tell me about yourself?
+I’m a Software Engineer with over nine years of experience in full-stack and backend development. I’ve worked extensively with Python, FastAPI, React, Docker, and cloud-based systems, building scalable and reliable applications. I recently completed my Master’s degree in Computer and Systems Sciences at Stockholm University, where I focused on AI, IoT, and human-AI interaction.
+
+In my recent project with HubEurope, a UK-based logistics company, I worked as part of a six-member DevOps team developing backend systems for delivery automation, courier integration, and shipment tracking. I handled database management, API integrations with DHL and eBay, and built AI-powered automation features using OpenAI APIs. I’m passionate about solving complex technical problems, optimizing performance, and building intelligent systems that make real-world processes more efficient. Since I’ve just completed my master’s, I’m ready to start contributing immediately and continue growing as a developer.
+
+4.	What are your salary expectations?
+Based on my background — over nine years of experience in full-stack and backend development, and my recent master’s degree in Computer and Systems Sciences from Stockholm University — I believe a fair range would be around [insert your target range, e.g., 45,000–55,000 SEK per month] depending on the overall responsibilities of the role. That said, I’m flexible and open to discussion. For me, the most important thing is joining a team where I can contribute effectively and continue growing technically.
+
+5.	What is your strength?
+One of my key strengths is my ability to collaborate effectively with diverse teams. For example, in my previous project, I worked closely with a team of ten members, and we effectively divided tasks and maintained clear communication throughout. I also have strong problem-solving skills, which means I can address any challenges that arise and ensure that the team stays on track. Overall, my collaborative mindset and problem-solving abilities have been instrumental in my success
+
+6.	Can you tell me about a challenging situation you faced at work and how you handled it?
+In one of my previous projects, I encountered a challenge where additional requirements were introduced midway, which affected our timeline. Despite the unexpected scope, I proactively communicated with my supervisor and the client to explain the situation. I then put in the extra effort, working an additional week to ensure we met the deadline. This experience reinforced my commitment to delivering on time and highlighted my ability to adapt and collaborate effectively under pressure
+
+7.	Where do you see yourself in five years?
+In the next five years, I see myself growing into a management role, leveraging the IT management skills I developed during my Master’s degree. My goal is to advance into a senior position, such as a team lead or even a CTO, where I can contribute strategically to the company’s growth. I’m passionate about both technical excellence and leadership, and I’m committed to developing the skills and experience needed to reach that level.
+
+8.	Why do you want to work for our company?
+I’m excited about the opportunity to work with your company because your goals and requirements align perfectly with my skills and experience. Having recently completed my Master’s degree, I’ve gained expertise in AI tools, API development, and programming, all of which will contribute to your company’s growth. I’m confident that this role will not only help me further develop my expertise but also allow me to make meaningful contributions to your team.
+
+9.	How do you handle tight deadlines?
+I handle tight deadlines by breaking work into clear tasks, prioritizing what delivers the most value, and communicating early if there’s a risk. I don’t wait until the last moment—transparency is key. In my experience, good planning and communication prevent most deadline issues.

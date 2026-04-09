@@ -1,0 +1,54 @@
+Mohamed Raiyan
+SOFTWARE ENGINEER 
+Eskilstuna, Sweden | +46767516351 | raiyanmfm@gmail.com 
+
+Objective
+ 
+Senior Software Engineer with more than nine years of experience building scalable backend systems, cloud-based applications, and high-performance APIs. Skilled in Python, JavaScript, and PHP, with experience developing distributed systems, microservices, and AI-driven automation solutions. Experienced in modern web technologies, REST API integrations, and containerized development environments. Recently I completed an MSc in Computer and Systems Sciences at Stockholm University. I am seeking a software engineering role where I can apply my technical expertise to build reliable and scalable systems while contributing to innovative technology-driven products.
+Experience
+ 
+Imara Software Solutions | Senior Software Engineer / Python Developer	Jan 2019 – Dec 2025
+•	Designed and maintained scalable backend systems handling over 500,000 API requests daily across distributed cloud infrastructure.
+•	Spearheaded development of high-performance Python services using FastAPI, integrating OpenAI APIs and large and small language models (LLM/SLM) along with custom AI models (NLP, image recognition) to process and classify high-volume data streams, reducing manual intervention by 60%.
+•	Built and maintained core RESTful APIs and robust backend logic using Python (Django) and Node.js, integrating with React frontends for admin panels and internal tools.
+•	Containerized microservices using Docker for consistent development, testing, and deployment across staging and production.
+•	Integrated Docker workflows into CI/CD pipelines, enabling automated testing, isolated environments, and smooth deployments.
+•	Implemented monitoring dashboards to track API uptime, service health, and error rates using custom analytics tools.
+•	Led integration of third-party APIs such as Shopify, eBay, and AWS services for product sync, order processing, and secure payment flow.
+•	Managed high-volume PostgreSQL and MySQL databases (2TB+), with automated backups and optimized indexing.
+•	Contributed to cloud infrastructure automation and deployment processes, working with Azure services and containerized environments to support scalable production systems.
+•	Mentored junior developers, led sprint planning, and ensured agile practices were followed consistently.
+•	Collaborated on end-to-end software delivery pipelines, aligning with the type of DevOps and delivery engineering responsibilities required at DeLaval.
+•	Accelerated internal tool development and business process automation by leveraging low-code/no-code platforms (make.com, Bubble) and managing structured data within NoSQL stores and tools like Airtable.
+
+Imara Software Solutions | Software Developer	Nov 2014 – Dec 2018
+•	Developed custom CMS solutions tailored to client needs using PHP (Laravel, CodeIgniter) and WordPress.
+•	Created dynamic web applications with integrated frontend features using HTML, CSS, and JavaScript.
+•	Developed admin panels and e-commerce features like product catalogues, cart systems, and checkout flows.
+•	Implemented REST APIs and connected backend services to front-end using AJAX and JSON.
+•	Managed code versioning and deployment workflows using Git and FTP, transitioning later to Git-based CI.
+•	Maintained MySQL databases, performed schema migrations, and handled cross-site data syncing.
+•	Built SEO-optimized, mobile-responsive websites and e-commerce platforms for small to mid-sized clients.
+Education
+ 
+Stockholm University, Master's degree, Computer and Systems Sciences	 Sep 2023 - Oct 2025
+•	Major: Machine Learning, IT Management, Research Methodology, ERP Systems, AI, Internet of Things Services, Information Security, Data Mining, Cyber Forensics
+•	Relevant Coursework: Conducted hands-on IoT labs using Raspberry Pi, CircuitPython, and MQTT, involving real-time sensor data capture, actuator control, and remote access via Android applications. Projects included building end-to-end IoT services with embedded systems and mobile interfaces.
+•	Thesis: Programming through Sketching – Non-Linguistic Interaction with Generative AI
+Explored a novel sketch-based approach to programming user interfaces using generative AI tools.
+Designed and evaluated a conceptual framework using Design Science Research (DSR), enabling users to generate frontend code (HTML/CSS/React) through multimodal inputs like hand-drawn sketches. Findings showed enhanced usability, creativity, and developer control in AI-assisted UI development.
+•	Hands-On Projects and Focus Areas:
+o	Built end-to-end IoT solutions using Raspberry Pi, CircuitPython, MQTT, and mobile interfaces for remote sensor-actuator integration.
+o	Developed data mining and machine learning projects using Python and Java, applying clustering and classification on real-world datasets.
+o	Applied secure coding and analysis techniques in Introduction to Information Security (ML470C) and Cyber Forensics (IB881C).
+o	Studied ethical and social dimensions of AI and digital transformation in Design and Information Society (ML485N).
+o	Gained deep understanding of strategic IT planning and digital transformation in courses like Management of Global IT Resources (IB576C), Strategic IT Management (IB472D), and Digital Business Strategies and Change Management (ML467C).
+
+•	Technical Tools: React, HTML, Python, Java, Raspberry Pi, CircuitPython, MQTT, Android
+
+University of Greenwich, Bachelor's Degree, Information Technology	2013 - 2014
+	Major: Web Engineering, Database Engineering, Programming Frameworks
+Publications
+ 
+•	Programming Through Sketching - Non-Linguistic Interaction with Generative AI Show publication
+o	Independent thesis Advanced level (degree of Master (Two Years)), 20 credits / 30 HE credits - Grade - C

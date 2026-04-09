@@ -1,10 +1,11 @@
 """
 RAGService — Retrieval-Augmented Generation using local .txt documents.
 
-Documents are split into line-level chunks at load time.
-Retrieval scores chunks by meaningful keyword overlap (stopwords excluded).
-Top-scoring chunks plus their immediate neighbours are sent to Groq
-for a fast, natural AI-generated answer.
+Since all documents are small, the full content is always sent to Groq.
+This allows Groq to reason semantically — handling synonyms, paraphrasing,
+and indirect questions that keyword matching cannot resolve.
+
+DocumentRetriever is kept for future use when document sets grow large.
 """
 
 from pathlib import Path
@@ -78,6 +79,7 @@ _STOPWORDS = {
     "they", "them", "their", "this", "that", "these", "those",
     "what", "which", "who", "whom", "how", "when", "where", "why",
     "and", "but", "or", "nor", "so", "yet", "both", "either", "not",
+    "know", "tell", "say", "get", "make", "go", "see", "think",
 }
 
 
@@ -89,18 +91,16 @@ def _normalize(text: str) -> set:
 
 class DocumentRetriever:
     """
-    Scores chunks by meaningful keyword overlap with the query.
-    Each top match also pulls in its next line so key:value pairs
-    like Company/Location are always retrieved together.
+    Keyword-based retriever — kept for future use when document sets are large.
+    Not used in the current RAGService which sends full context to Groq.
     """
 
-    def retrieve(self, query: str, chunks: list, top_k: int = 2) -> list:
+    def retrieve(self, query: str, chunks: list, top_k: int = 5) -> list:
         if not chunks:
             return []
         query_words = _normalize(query)
         if not query_words:
             return []
-
         scored = []
         for chunk in chunks:
             overlap = len(query_words & _normalize(chunk.text))
@@ -108,24 +108,18 @@ class DocumentRetriever:
                 continue
             score = overlap / (1 + len(chunk.text.split()) * 0.1)
             scored.append(ScoredChunk(chunk=chunk, score=score))
-
         scored.sort(key=lambda r: r.score, reverse=True)
         top_chunks = [r.chunk for r in scored[:top_k]]
-
         result_indices = {c.index for c in top_chunks}
         for chunk in top_chunks:
             ni = chunk.index + 1
             if ni < len(chunks) and chunks[ni].filename == chunk.filename:
                 result_indices.add(ni)
-
         return [chunks[i] for i in sorted(result_indices)]
 
 
 class GroqClient:
-    """
-    Client for the Groq API — fast cloud inference, free tier available.
-    Responses arrive in ~1 second regardless of model size.
-    """
+    """Client for the Groq API — fast cloud inference, free tier available."""
 
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or os.environ.get("GROQ_API_KEY", "")
@@ -147,11 +141,15 @@ class GroqClient:
 
 class RAGService:
     """
-    Orchestrates chunking, retrieval, and AI answer generation via Groq.
+    Sends full document context to Groq for every question.
 
-    Given a question, it:
-      1. Retrieves the most relevant document chunks.
-      2. Sends them as context to Groq for a natural AI answer.
+    This allows Groq to reason semantically — it can handle synonyms,
+    paraphrasing, and indirect questions. For example:
+    - "quality or state of being physically strong" → matches "strength"
+    - "do you know about me?" → reads the full CV
+    - "what is your WiFi?" → finds the answer in office.txt
+
+    Documents are small so sending full context costs negligible tokens.
     """
 
     def __init__(self, loader=None, chunker=None, retriever=None, llm_client=None):
@@ -160,23 +158,32 @@ class RAGService:
         self.retriever = retriever or DocumentRetriever()
         self.llm_client = llm_client or GroqClient()
         self._chunks: list = []
+        self._documents: list = []
 
     def load_documents(self) -> None:
         """Load and chunk documents from disk. Call once at startup."""
-        self._chunks = self.chunker.chunk(self.loader.load_all())
+        self._documents = self.loader.load_all()
+        self._chunks = self.chunker.chunk(self._documents)
 
     def generate_answer(self, question: str) -> str:
-        relevant_chunks = self.retriever.retrieve(question, self._chunks)
-        context = self._build_context(relevant_chunks)
+        context = self._full_context()
         system_prompt = (
-            "You are a helpful assistant. Answer the user's question using "
-            "ONLY the context provided. Be concise and direct. "
-            "If the context does not contain the answer, say so clearly."
+            "You are a helpful personal assistant. "
+            "You have access to the user's personal documents including their CV, "
+            "interview preparation notes, and office information. "
+            "Answer questions naturally and confidently using the context. "
+            "When asked about skills, strengths, experience, or background, "
+            "refer to the documents directly. "
+            "If something is not in the documents, say so clearly."
         )
         user_message = f"Context:\n{context}\n\nQuestion: {question}"
         return self.llm_client.generate(system_prompt, user_message)
 
-    def _build_context(self, chunks: list) -> str:
-        if not chunks:
-            return "No relevant information found."
-        return "\n".join(f"- {chunk.text}" for chunk in chunks)
+    def _full_context(self) -> str:
+        """Return complete content of all documents."""
+        if not self._documents:
+            return "No documents available."
+        return "\n\n".join(
+            f"=== {doc.filename} ===\n{doc.content}"
+            for doc in self._documents
+        )
