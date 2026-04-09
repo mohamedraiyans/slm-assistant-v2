@@ -5,7 +5,6 @@ ChatService has two dependencies (RAGService, MemoryService).
 Both are replaced with fakes so this test suite is fast and isolated.
 """
 
-import pytest
 from app.services.chat_service import ChatService
 
 
@@ -14,7 +13,7 @@ class FakeRAG:
         self.reply = reply
         self.received_question = None
 
-    async def generate_answer(self, question: str) -> str:
+    def generate_answer(self, question: str) -> str:
         self.received_question = question
         return self.reply
 
@@ -33,53 +32,66 @@ class FakeMemory:
         self.saved.clear()
 
 
-@pytest.mark.asyncio
-async def test_handle_chat_returns_rag_response():
+def test_handle_chat_returns_rag_response():
+    # Arrange
     chat = ChatService(FakeRAG(reply="Paris"), FakeMemory())
-    result = await chat.handle_chat("What is the capital of France?")
+    # Act
+    result = chat.handle_chat("What is the capital of France?")
+    # Assert
     assert result == "Paris"
 
 
-@pytest.mark.asyncio
-async def test_handle_chat_saves_user_message_before_assistant():
+def test_handle_chat_saves_user_message_before_assistant():
+    # Arrange
     rag = FakeRAG()
     memory = FakeMemory()
     chat = ChatService(rag, memory)
-    await chat.handle_chat("hello")
+    # Act
+    chat.handle_chat("hello")
+    # Assert
     history = memory.get_all()
     assert history[0] == ("user", "hello")
     assert history[1] == ("assistant", "mocked answer")
 
 
-@pytest.mark.asyncio
-async def test_handle_chat_saves_exactly_two_messages_per_turn():
+def test_handle_chat_saves_exactly_two_messages_per_turn():
+    # Arrange
     chat = ChatService(FakeRAG(), FakeMemory())
-    await chat.handle_chat("hi")
+    # Act
+    chat.handle_chat("hi")
+    # Assert
     assert len(chat.memory.get_all()) == 2
 
 
-@pytest.mark.asyncio
-async def test_handle_chat_passes_user_input_to_rag():
+def test_handle_chat_passes_user_input_to_rag():
+    # Arrange
     rag = FakeRAG()
     chat = ChatService(rag, FakeMemory())
-    await chat.handle_chat("What is RAG?")
+    # Act
+    chat.handle_chat("What is RAG?")
+    # Assert
     assert rag.received_question == "What is RAG?"
 
 
-@pytest.mark.asyncio
-async def test_multiple_turns_accumulate_in_memory():
+def test_multiple_turns_accumulate_in_memory():
+    # Arrange
     rag = FakeRAG()
     memory = FakeMemory()
     chat = ChatService(rag, memory)
-    await chat.handle_chat("first question")
-    await chat.handle_chat("second question")
+    # Act
+    chat.handle_chat("first question")
+    chat.handle_chat("second question")
+    # Assert
     assert len(memory.get_all()) == 4
 
 
-@pytest.mark.asyncio
-async def test_handle_chat_with_empty_string_still_calls_rag():
+def test_handle_chat_with_empty_string_still_calls_rag():
+    # Arrange
     rag = FakeRAG(reply="fallback")
     chat = ChatService(rag, FakeMemory())
-    result = await chat.handle_chat("")
+    # Act
+    result = chat.handle_chat("")
+    # Assert
     assert result == "fallback"
     assert rag.received_question == ""
+ 
