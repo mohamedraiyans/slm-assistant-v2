@@ -1,0 +1,10 @@
+Company: Conversy AI Office
+Location: Kungsgatan 12, Stockholm, Sweden
+Office Hours: Monday to Friday, 9:00 AM to 6:00 PM
+Lunch Break: 12:00 PM to 1:00 PM
+WiFi Password: Conversy2024
+Meeting Rooms: Alfa, Beta, Gamma — book via the internal calendar
+Parking: Available in the basement, access card required
+Kitchen: Located on floor 2, stocked with coffee, tea, and snacks
+IT Support: it@conversy.ai or Slack #it-help
+Emergency Exit: Main staircase on the east side of the building
