@@ -327,6 +327,31 @@
 
   .message.user .meta { text-align: right; }
 
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .message.user .meta-row { justify-content: flex-end; }
+  .message.user .meta-row .meta { margin-top: 0; }
+
+  .edit-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .message.user:hover .edit-btn { opacity: 1; }
+  .edit-btn:hover { color: var(--accent2); }
+
   /* Similar results / sources */
   .sources {
     margin-top: 10px;
@@ -615,6 +640,24 @@
     sendMessage();
   }
 
+  function editMessage(btn) {
+    const messageDiv = btn.closest('.message.user');
+    const rawText = messageDiv.dataset.text || '';
+
+    // Drop this message and everything after it (its reply + any later turns)
+    let node = messageDiv;
+    while (node) {
+      const next = node.nextElementSibling;
+      node.remove();
+      node = next;
+    }
+
+    const input = document.getElementById('input');
+    input.value = rawText;
+    autoResize(input);
+    input.focus();
+  }
+
   function formatTime() {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
@@ -704,10 +747,14 @@
       <div class="avatar">${avatar}</div>
       <div>
         <div class="bubble ${bubbleClass}">${escapeHtml(text)}</div>
-        <div class="meta">${formatTime()}</div>
+        <div class="meta-row">
+          <div class="meta">${formatTime()}</div>
+          ${role === 'user' ? `<button class="edit-btn" onclick="editMessage(this)">✎ Edit</button>` : ''}
+        </div>
         ${role === 'assistant' ? renderSources(sources) : ''}
       </div>
     `;
+    if (role === 'user') div.dataset.text = text;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
     return div;
