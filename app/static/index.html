@@ -114,7 +114,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--text);
+    cursor: pointer;
   }
+
+  .doc-name:hover { color: var(--accent2); text-decoration: underline; }
 
   .doc-remove {
     background: transparent;
@@ -397,6 +400,15 @@
     color: var(--accent2);
     margin-bottom: 4px;
   }
+
+  .source-filename {
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .source-filename:hover { color: var(--accent); text-decoration: underline; }
 
   .source-score {
     color: var(--text-muted);
@@ -730,11 +742,15 @@
     return 'match-low';
   }
 
+  function openDocument(filename) {
+    window.open(`/api/documents/${encodeURIComponent(filename)}/file`, '_blank');
+  }
+
   function renderSourceItem(s, isBest) {
     return `
       <div class="source-item${isBest ? ' best-match' : ''}">
         <div class="source-head">
-          <span>${escapeHtml(s.filename)}</span>
+          <span class="source-filename" data-name="${escapeHtml(s.filename)}" onclick="openDocument(this.dataset.name)" title="Open ${escapeHtml(s.filename)}">${escapeHtml(s.filename)}</span>
           <span class="source-score ${scoreClass(s.score)}">${Math.round(s.score * 100)}% match</span>
         </div>
         <div class="source-text">${highlightMatches(s.text, lastQuery)}</div>
@@ -891,7 +907,7 @@
     }
     list.innerHTML = docs.map(name => `
       <div class="doc-item">
-        <span class="doc-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        <span class="doc-name" data-name="${escapeHtml(name)}" onclick="openDocument(this.dataset.name)" title="Open ${escapeHtml(name)}">${escapeHtml(name)}</span>
         <button class="doc-remove" data-name="${escapeHtml(name)}" onclick="removeDocument(this.dataset.name)">✕</button>
       </div>
     `).join('');

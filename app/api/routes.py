@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.services.chat_service import ChatService
@@ -104,8 +105,21 @@ def delete_document(
     filename: str,
     rag_service: RAGService = Depends(get_rag_service),
 ):
-    dest = rag_service.docs_dir / filename
+    safe_name = Path(filename).name
+    dest = rag_service.docs_dir / safe_name
     if dest.exists():
         dest.unlink()
-    rag_service.remove_document(filename)
-    return {"message": f"Deleted {filename}"}
+    rag_service.remove_document(safe_name)
+    return {"message": f"Deleted {safe_name}"}
+
+
+@router.get("/documents/{filename}/file")
+def get_document_file(
+    filename: str,
+    rag_service: RAGService = Depends(get_rag_service),
+):
+    safe_name = Path(filename).name
+    path = rag_service.docs_dir / safe_name
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(path)
