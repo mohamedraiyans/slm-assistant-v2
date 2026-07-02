@@ -21,6 +21,7 @@
     --user-border: #3d2f8a;
     --ai-bg: #16161a;
     --success: #34d399;
+    --danger: #f87171;
     --radius: 16px;
   }
 
@@ -29,9 +30,118 @@
     background: var(--bg);
     color: var(--text);
     height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    height: 100%;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .sidebar h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 4px;
+  }
+
+  .dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    padding: 22px 12px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dropzone:hover,
+  .dropzone.dragover {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: var(--user-bg);
+  }
+
+  .dropzone input { display: none; }
+
+  .dropzone .dz-icon { font-size: 20px; display: block; margin-bottom: 6px; }
+  .dropzone .dz-types { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+  .upload-status {
+    font-size: 11px;
+    color: var(--accent2);
+    min-height: 14px;
+  }
+
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .doc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .doc-name {
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text);
+  }
+
+  .doc-remove {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    flex-shrink: 0;
+    line-height: 1;
+    padding: 2px;
+  }
+
+  .doc-remove:hover { color: var(--danger); }
+
+  .doc-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  /* Chat panel */
+  .chat-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Header */
@@ -43,6 +153,20 @@
     border-bottom: 1px solid var(--border);
     background: var(--surface);
     flex-shrink: 0;
+  }
+
+  .sidebar-toggle {
+    display: none;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
   }
 
   .logo {
@@ -176,6 +300,22 @@
     border: 1px solid var(--border);
     border-radius: 4px var(--radius) var(--radius) var(--radius);
     color: var(--text);
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .message.assistant .bubble.match-good {
+    background: rgba(52, 211, 153, 0.1);
+    border-color: var(--success);
+  }
+
+  .message.assistant .bubble.match-medium {
+    background: rgba(245, 166, 35, 0.1);
+    border-color: #f5a623;
+  }
+
+  .message.assistant .bubble.match-low {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: var(--danger);
   }
 
   .meta {
@@ -187,31 +327,72 @@
 
   .message.user .meta { text-align: right; }
 
-  /* Typing indicator */
-  .typing-bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px var(--radius) var(--radius) var(--radius);
-    padding: 16px 20px;
+  /* Similar results / sources */
+  .sources {
+    margin-top: 10px;
     display: flex;
-    gap: 5px;
-    align-items: center;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 640px;
   }
 
-  .typing-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
+  .sources-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 0 4px;
+  }
+
+  .source-item {
+    padding: 9px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .source-item.best-match {
+    background: var(--user-bg);
+    border: 1px solid var(--accent);
+  }
+
+  .best-match-label {
+    font-size: 10px;
+    color: var(--success);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 0 4px;
+  }
+
+  .source-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--accent2);
+    margin-bottom: 4px;
+  }
+
+  .source-score {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .source-score.match-good { color: var(--success); }
+  .source-score.match-medium { color: #f5a623; }
+  .source-score.match-low { color: var(--danger); }
+
+  .source-text {
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .source-text mark {
     background: var(--accent);
-    animation: bounce 1.2s infinite;
-  }
-
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
+    color: #fff;
+    padding: 0 2px;
+    border-radius: 3px;
   }
 
   /* Welcome */
@@ -339,42 +520,79 @@
     margin-top: 8px;
     text-align: center;
   }
+
+  @media (max-width: 720px) {
+    .sidebar-toggle { display: flex; }
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 20;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      box-shadow: 8px 0 24px rgba(0, 0, 0, 0.4);
+    }
+    .sidebar.open { transform: translateX(0); }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">⚡</div>
-  <h1>SLM Assistant</h1>
-  <div class="status">
-    <div class="status-dot"></div>
-    <span>Groq · llama-3.3-70b</span>
-  </div>
-  <button class="clear-btn" onclick="clearHistory()">Clear chat</button>
-</header>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <h3>Upload documents</h3>
+      <div class="dropzone" id="dropzone">
+        <span class="dz-icon">📄</span>
+        Click or drag a file here
+        <div class="dz-types">.txt · .pdf · .docx</div>
+        <input type="file" id="fileInput" accept=".txt,.pdf,.docx" multiple>
+      </div>
+      <div class="upload-status" id="uploadStatus"></div>
+    </div>
+    <div>
+      <h3>Knowledge base</h3>
+      <div class="doc-list" id="docList">
+        <div class="doc-empty">Loading…</div>
+      </div>
+    </div>
+  </aside>
 
-<div id="messages">
-  <div class="welcome" id="welcome">
-    <div class="welcome-icon">⚡</div>
-    <h2>How can I help?</h2>
-    <p>Ask me anything about the office. I'll find the answer from the knowledge base instantly.</p>
-    <div class="suggestions">
-      <button class="suggestion" onclick="sendSuggestion(this)">Where is the company located?</button>
-      <button class="suggestion" onclick="sendSuggestion(this)">What are the office hours?</button>
-      <button class="suggestion" onclick="sendSuggestion(this)">What is the WiFi password?</button>
-      <button class="suggestion" onclick="sendSuggestion(this)">How do I request time off?</button>
+  <div class="chat-panel">
+    <header>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="logo">⚡</div>
+      <h1>SLM Assistant</h1>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Groq · llama-3.3-70b</span>
+      </div>
+      <button class="clear-btn" onclick="clearHistory()">Clear chat</button>
+    </header>
+
+    <div id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-icon">⚡</div>
+        <h2>How can I help?</h2>
+        <p>Ask me anything about the office. I'll find the answer from the knowledge base instantly.</p>
+        <div class="suggestions">
+          <button class="suggestion" onclick="sendSuggestion(this)">Where is the company located?</button>
+          <button class="suggestion" onclick="sendSuggestion(this)">What are the office hours?</button>
+          <button class="suggestion" onclick="sendSuggestion(this)">What is the WiFi password?</button>
+          <button class="suggestion" onclick="sendSuggestion(this)">How do I request time off?</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="input" rows="1" placeholder="Ask anything…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="send" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="hint">Enter to send · Shift+Enter for new line</div>
     </div>
   </div>
-</div>
-
-<div class="input-area">
-  <div class="input-wrap">
-    <textarea id="input" rows="1" placeholder="Ask anything…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-    <button id="send" onclick="sendMessage()">
-      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-    </button>
-  </div>
-  <div class="hint">Enter to send · Shift+Enter for new line</div>
 </div>
 
 <script>
@@ -401,7 +619,76 @@
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  function appendMessage(role, text) {
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+  }
+
+  let lastQuery = '';
+
+  const STOPWORDS = new Set([
+    'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+    'do', 'does', 'did', 'have', 'has', 'had', 'will', 'would', 'could',
+    'should', 'may', 'might', 'shall', 'can', 'need', 'to', 'of', 'in',
+    'on', 'at', 'by', 'for', 'with', 'about', 'as', 'into', 'through',
+    'from', 'up', 'down', 'out', 'off', 'over', 'under', 'again', 'i',
+    'me', 'my', 'we', 'our', 'you', 'your', 'he', 'she', 'it', 'they',
+    'them', 'their', 'this', 'that', 'these', 'those', 'what', 'which',
+    'who', 'how', 'when', 'where', 'why', 'and', 'but', 'or', 'not',
+    'instead', 'coming',
+  ]);
+
+  function highlightMatches(text, query) {
+    const escaped = escapeHtml(text);
+    const words = [...new Set(
+      query.toLowerCase().split(/\W+/).filter(w => w.length > 2 && !STOPWORDS.has(w))
+    )];
+    if (!words.length) return escaped;
+    const pattern = new RegExp('\\b(' + words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b', 'gi');
+    return escaped.replace(pattern, '<mark>$1</mark>');
+  }
+
+  function scoreClass(score) {
+    if (score >= 0.5) return 'match-good';
+    if (score >= 0.25) return 'match-medium';
+    return 'match-low';
+  }
+
+  function renderSourceItem(s, isBest) {
+    return `
+      <div class="source-item${isBest ? ' best-match' : ''}">
+        <div class="source-head">
+          <span>${escapeHtml(s.filename)}</span>
+          <span class="source-score ${scoreClass(s.score)}">${Math.round(s.score * 100)}% match</span>
+        </div>
+        <div class="source-text">${highlightMatches(s.text, lastQuery)}</div>
+      </div>
+    `;
+  }
+
+  function renderSources(sources) {
+    if (!sources || !sources.length) return '';
+    const [best, ...rest] = sources;
+    const bestHtml = `
+      <div class="best-match-label">Best match</div>
+      ${renderSourceItem(best, true)}
+    `;
+    const restHtml = rest.length ? `
+      <div class="sources-label">Similar results</div>
+      ${rest.map(s => renderSourceItem(s, false)).join('')}
+    ` : '';
+    return `
+      <div class="sources">
+        ${bestHtml}
+        ${restHtml}
+      </div>
+    `;
+  }
+
+  function appendMessage(role, text, sources) {
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.remove();
 
@@ -410,11 +697,15 @@
     div.className = `message ${role}`;
 
     const avatar = role === 'user' ? '👤' : '⚡';
+    const bubbleClass = role === 'assistant'
+      ? scoreClass(sources && sources.length ? sources[0].score : 0)
+      : '';
     div.innerHTML = `
       <div class="avatar">${avatar}</div>
       <div>
-        <div class="bubble">${escapeHtml(text)}</div>
+        <div class="bubble ${bubbleClass}">${escapeHtml(text)}</div>
         <div class="meta">${formatTime()}</div>
+        ${role === 'assistant' ? renderSources(sources) : ''}
       </div>
     `;
     messages.appendChild(div);
@@ -447,20 +738,13 @@
     if (t) t.remove();
   }
 
-  function escapeHtml(text) {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\n/g, '<br>');
-  }
-
   async function sendMessage() {
     if (isLoading) return;
     const input = document.getElementById('input');
     const text = input.value.trim();
     if (!text) return;
 
+    lastQuery = text;
     input.value = '';
     input.style.height = 'auto';
     document.getElementById('send').disabled = true;
@@ -477,7 +761,7 @@
       });
       const data = await res.json();
       removeTyping();
-      appendMessage('assistant', data.response || 'No response.');
+      appendMessage('assistant', data.response || 'No response.', data.sources);
     } catch (err) {
       removeTyping();
       appendMessage('assistant', 'Something went wrong. Please try again.');
@@ -505,6 +789,91 @@
       </div>
     `;
   }
+
+  /* ---------------- Knowledge base sidebar ---------------- */
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  async function loadDocuments() {
+    try {
+      const res = await fetch('/api/documents');
+      const data = await res.json();
+      renderDocuments(data.documents || []);
+    } catch (err) {
+      renderDocuments([]);
+    }
+  }
+
+  function renderDocuments(docs) {
+    const list = document.getElementById('docList');
+    if (!docs.length) {
+      list.innerHTML = '<div class="doc-empty">No documents yet</div>';
+      return;
+    }
+    list.innerHTML = docs.map(name => `
+      <div class="doc-item">
+        <span class="doc-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        <button class="doc-remove" data-name="${escapeHtml(name)}" onclick="removeDocument(this.dataset.name)">✕</button>
+      </div>
+    `).join('');
+  }
+
+  async function removeDocument(name) {
+    await fetch(`/api/documents/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    loadDocuments();
+  }
+
+  async function uploadFiles(fileList) {
+    const status = document.getElementById('uploadStatus');
+    const files = Array.from(fileList);
+    for (const file of files) {
+      status.textContent = `Indexing ${file.name}…`;
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/documents', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Upload failed');
+        status.textContent = `${file.name} indexed (${data.chunks_indexed} chunks)`;
+      } catch (err) {
+        status.textContent = `Failed: ${file.name} — ${err.message}`;
+      }
+    }
+    loadDocuments();
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  }
+
+  function setupDropzone() {
+    const zone = document.getElementById('dropzone');
+    const input = document.getElementById('fileInput');
+
+    zone.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+      if (input.files.length) uploadFiles(input.files);
+      input.value = '';
+    });
+
+    ['dragover', 'dragenter'].forEach(evt =>
+      zone.addEventListener(evt, e => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+      zone.addEventListener(evt, e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+      })
+    );
+    zone.addEventListener('drop', e => {
+      if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files);
+    });
+  }
+
+  setupDropzone();
+  loadDocuments();
 </script>
 </body>
 </html>

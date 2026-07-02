@@ -9,13 +9,14 @@ from app.services.chat_service import ChatService
 
 
 class FakeRAG:
-    def __init__(self, reply: str = "mocked answer"):
-        self.reply = reply
+    def __init__(self, answer: str = "mocked answer", sources=None):
+        self.answer = answer
+        self.sources = sources or []
         self.received_question = None
 
-    def generate_answer(self, question: str) -> str:
+    def generate_answer(self, question: str) -> dict:
         self.received_question = question
-        return self.reply
+        return {"answer": self.answer, "sources": self.sources}
 
 
 class FakeMemory:
@@ -32,13 +33,23 @@ class FakeMemory:
         self.saved.clear()
 
 
-def test_handle_chat_returns_rag_response():
+def test_handle_chat_returns_rag_answer():
     # Arrange
-    chat = ChatService(FakeRAG(reply="Paris"), FakeMemory())
+    chat = ChatService(FakeRAG(answer="Paris"), FakeMemory())
     # Act
     result = chat.handle_chat("What is the capital of France?")
     # Assert
-    assert result == "Paris"
+    assert result["answer"] == "Paris"
+
+
+def test_handle_chat_returns_sources():
+    # Arrange
+    sources = [{"filename": "geo.txt", "text": "Paris is the capital", "score": 0.95}]
+    chat = ChatService(FakeRAG(answer="Paris", sources=sources), FakeMemory())
+    # Act
+    result = chat.handle_chat("capital of France?")
+    # Assert
+    assert result["sources"] == sources
 
 
 def test_handle_chat_saves_user_message_before_assistant():
@@ -87,11 +98,10 @@ def test_multiple_turns_accumulate_in_memory():
 
 def test_handle_chat_with_empty_string_still_calls_rag():
     # Arrange
-    rag = FakeRAG(reply="fallback")
+    rag = FakeRAG(answer="fallback")
     chat = ChatService(rag, FakeMemory())
     # Act
     result = chat.handle_chat("")
     # Assert
-    assert result == "fallback"
+    assert result["answer"] == "fallback"
     assert rag.received_question == ""
- 

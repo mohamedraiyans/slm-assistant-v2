@@ -4,3 +4,7 @@ groq
 pytest
 pydantic
 python-dotenv
+chromadb
+pypdf
+python-docx
+python-multipart

@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - ./data/docs:/app/data/docs
+      - ./data/vectordb:/app/data/vectordb
     env_file:
       - .env
 

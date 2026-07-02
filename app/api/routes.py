@@ -2,12 +2,16 @@
 API routes for the SLM Assistant.
 """
 
-from fastapi import APIRouter, Depends
+import shutil
+from pathlib import Path
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app.services.chat_service import ChatService
-from app.services.rag_service import RAGService
+from app.services.document_extractor import SUPPORTED_EXTENSIONS
 from app.services.memory_service import MemoryService
+from app.services.rag_service import RAGService
 
 router = APIRouter(prefix="/api")
 
@@ -25,6 +29,10 @@ def get_memory_service() -> MemoryService:
     return _memory_service
 
 
+def get_rag_service() -> RAGService:
+    return _rag_service
+
+
 class ChatRequest(BaseModel):
     message: str
 
@@ -39,8 +47,8 @@ def chat(
     request: ChatRequest,
     chat_service: ChatService = Depends(get_chat_service),
 ):
-    response = chat_service.handle_chat(request.message)
-    return {"response": response}
+    result = chat_service.handle_chat(request.message)
+    return {"response": result["answer"], "sources": result["sources"]}
 
 
 @router.get("/history")
@@ -57,3 +65,47 @@ def clear_history(
 ):
     memory_service.clear()
     return {"message": "History cleared"}
+
+
+@router.get("/documents")
+def list_documents(rag_service: RAGService = Depends(get_rag_service)):
+    return {"documents": rag_service.list_documents()}
+
+
+@router.post("/documents")
+async def upload_document(
+    file: UploadFile = File(...),
+    rag_service: RAGService = Depends(get_rag_service),
+):
+    filename = Path(file.filename).name  # strip any path components
+    suffix = Path(filename).suffix.lower()
+    if suffix not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '{suffix}'. Allowed: {', '.join(sorted(SUPPORTED_EXTENSIONS))}",
+        )
+
+    rag_service.docs_dir.mkdir(parents=True, exist_ok=True)
+    dest = rag_service.docs_dir / filename
+    with dest.open("wb") as out:
+        shutil.copyfileobj(file.file, out)
+
+    try:
+        chunk_count = rag_service.index_file(dest)
+    except Exception as exc:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=f"Could not read file: {exc}") from exc
+
+    return {"filename": filename, "chunks_indexed": chunk_count}
+
+
+@router.delete("/documents/{filename}")
+def delete_document(
+    filename: str,
+    rag_service: RAGService = Depends(get_rag_service),
+):
+    dest = rag_service.docs_dir / filename
+    if dest.exists():
+        dest.unlink()
+    rag_service.remove_document(filename)
+    return {"message": f"Deleted {filename}"}

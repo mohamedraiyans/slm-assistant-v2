@@ -15,9 +15,9 @@ class ChatService:
         self.rag = rag_service
         self.memory = memory_service
 
-    def handle_chat(self, user_input: str) -> str:
-        """Process one user message and return the assistant reply."""
+    def handle_chat(self, user_input: str) -> dict:
+        """Process one user message and return the assistant reply with its sources."""
         self.memory.save("user", user_input)
-        response = self.rag.generate_answer(user_input)
-        self.memory.save("assistant", response)
-        return response
+        result = self.rag.generate_answer(user_input)
+        self.memory.save("assistant", result["answer"])
+        return result
