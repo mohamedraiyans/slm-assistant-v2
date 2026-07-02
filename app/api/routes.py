@@ -108,7 +108,13 @@ def delete_document(
     safe_name = Path(filename).name
     dest = rag_service.docs_dir / safe_name
     if dest.exists():
-        dest.unlink()
+        try:
+            dest.unlink()
+        except PermissionError as exc:
+            raise HTTPException(
+                status_code=409,
+                detail=f"{safe_name} is open in another program (e.g. Adobe Acrobat, a PDF viewer, Word) — close it there and try again.",
+            ) from exc
     rag_service.remove_document(safe_name)
     return {"message": f"Deleted {safe_name}"}
 

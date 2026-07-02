@@ -914,7 +914,12 @@
   }
 
   async function removeDocument(name) {
-    await fetch(`/api/documents/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    if (!confirm(`Delete "${name}"? This removes it from the knowledge base too.`)) return;
+    const res = await fetch(`/api/documents/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.detail || `Could not delete ${name}.`);
+    }
     loadDocuments();
   }
 
