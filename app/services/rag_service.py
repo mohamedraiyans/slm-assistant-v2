@@ -27,32 +27,43 @@ class Chunk:
 
 
 class DocumentChunker:
-    """Splits text into overlapping word-based chunks for retrieval."""
+    """
+    Splits text into chunks along line boundaries, so distinct facts (e.g.
+    one line per FAQ answer, one line per office fact) don't get blended
+    into a single diluted embedding. A line longer than chunk_size is
+    further split with a word-based sliding window.
+    """
 
     def __init__(self, chunk_size: int = 150, overlap: int = 30):
         self.chunk_size = chunk_size
         self.overlap = overlap
 
     def chunk(self, filename: str, text: str) -> list:
-        words = text.split()
-        if not words:
-            return []
         chunks = []
-        start = 0
         index = 0
-        while start < len(words):
-            end = start + self.chunk_size
-            chunk_text = " ".join(words[start:end])
-            chunks.append(Chunk(
-                id=f"{filename}::{index}",
-                filename=filename,
-                text=chunk_text,
-                index=index,
-            ))
-            index += 1
-            if end >= len(words):
-                break
-            start = end - self.overlap
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            words = line.split()
+            if len(words) <= self.chunk_size:
+                chunks.append(Chunk(id=f"{filename}::{index}", filename=filename, text=line, index=index))
+                index += 1
+                continue
+            start = 0
+            while start < len(words):
+                end = start + self.chunk_size
+                chunk_text = " ".join(words[start:end])
+                chunks.append(Chunk(
+                    id=f"{filename}::{index}",
+                    filename=filename,
+                    text=chunk_text,
+                    index=index,
+                ))
+                index += 1
+                if end >= len(words):
+                    break
+                start = end - self.overlap
         return chunks
 
 

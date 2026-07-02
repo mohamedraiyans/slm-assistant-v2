@@ -77,6 +77,25 @@ def test_chunker_overlaps_consecutive_chunks():
     second_words = chunks[1].text.split()
     assert first_words[-1] == second_words[29]
 
+def test_chunker_splits_each_line_into_its_own_chunk():
+    text = "Company: Conversy AI\nLocation: Stockholm\nWiFi: secret123"
+    chunks = DocumentChunker().chunk("office.txt", text)
+    assert [c.text for c in chunks] == [
+        "Company: Conversy AI",
+        "Location: Stockholm",
+        "WiFi: secret123",
+    ]
+
+def test_chunker_skips_blank_lines():
+    text = "first fact\n\n\nsecond fact"
+    chunks = DocumentChunker().chunk("f.txt", text)
+    assert [c.text for c in chunks] == ["first fact", "second fact"]
+
+def test_chunker_still_splits_an_overlong_single_line():
+    line = " ".join(f"word{i}" for i in range(200))
+    chunks = DocumentChunker(chunk_size=150, overlap=30).chunk("f.txt", line)
+    assert len(chunks) == 2
+
 
 # ---------------------------------------------------------------------------
 # RAGService
@@ -110,7 +129,7 @@ def test_rag_index_file_chunks_and_stores(tmp_path):
     store = FakeVectorStore()
     rag = RAGService(vector_store=store, llm_client=FakeLLMClient())
     count = rag.index_file(path)
-    assert count == 1
+    assert count == 2
     assert store.added_chunks[0].filename == "facts.txt"
 
 def test_rag_load_documents_skips_already_indexed(tmp_path):
