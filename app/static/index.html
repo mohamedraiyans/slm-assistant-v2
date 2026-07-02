@@ -539,6 +539,33 @@
 
   #send svg { width: 16px; height: 16px; fill: white; }
 
+  #mic {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    color: var(--text-muted);
+  }
+
+  #mic:hover { border-color: var(--accent); color: var(--accent2); }
+  #mic:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  #mic.listening {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+    animation: pulse 1.2s infinite;
+  }
+
+  #mic svg { width: 16px; height: 16px; fill: currentColor; }
+
   .hint {
     font-size: 11px;
     color: var(--text-muted);
@@ -611,6 +638,9 @@
     <div class="input-area">
       <div class="input-wrap">
         <textarea id="input" rows="1" placeholder="Ask anything…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="mic" onclick="toggleVoiceInput()" title="Voice input">
+          <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+        </button>
         <button id="send" onclick="sendMessage()">
           <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
         </button>
@@ -919,7 +949,58 @@
     });
   }
 
+  /* ---------------- Voice input ---------------- */
+
+  let recognition = null;
+  let isListening = false;
+
+  function setupSpeechRecognition() {
+    const micBtn = document.getElementById('mic');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      micBtn.disabled = true;
+      micBtn.title = 'Voice input is not supported in this browser';
+      return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = e => {
+      let transcript = '';
+      for (let i = 0; i < e.results.length; i++) transcript += e.results[i][0].transcript;
+      const input = document.getElementById('input');
+      input.value = transcript;
+      autoResize(input);
+    };
+
+    recognition.onerror = () => stopListening();
+    recognition.onend = () => stopListening();
+  }
+
+  function stopListening() {
+    isListening = false;
+    document.getElementById('mic').classList.remove('listening');
+  }
+
+  function toggleVoiceInput() {
+    if (!recognition) return;
+    if (isListening) {
+      recognition.stop();
+      return;
+    }
+    const input = document.getElementById('input');
+    input.value = '';
+    autoResize(input);
+    isListening = true;
+    document.getElementById('mic').classList.add('listening');
+    recognition.start();
+  }
+
   setupDropzone();
+  setupSpeechRecognition();
   loadDocuments();
 </script>
 </body>
