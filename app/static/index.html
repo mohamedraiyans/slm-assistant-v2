@@ -585,6 +585,84 @@
     text-align: center;
   }
 
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.15s ease;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    max-width: 360px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalPop 0.15s ease;
+  }
+
+  @keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .modal-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+
+  .modal-text strong { color: var(--accent2); }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .modal-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  .modal-btn.modal-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .modal-btn.modal-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+
+  .modal-btn.modal-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .modal-btn.modal-danger:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+
   @media (max-width: 720px) {
     .sidebar-toggle { display: flex; }
     .sidebar {
@@ -658,6 +736,17 @@
         </button>
       </div>
       <div class="hint">Enter to send · Shift+Enter for new line</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-text" id="modalText"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modalCancelBtn">Cancel</button>
+      <button class="modal-btn" id="modalOkBtn">OK</button>
     </div>
   </div>
 </div>
@@ -913,12 +1002,56 @@
     `).join('');
   }
 
+  function showModal({ title, text, confirmText = 'OK', cancelText = null, danger = false }) {
+    return new Promise(resolve => {
+      const overlay = document.getElementById('modalOverlay');
+      const okBtn = document.getElementById('modalOkBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalText').innerHTML = text;
+      okBtn.textContent = confirmText;
+      okBtn.className = `modal-btn ${danger ? 'modal-danger' : 'modal-primary'}`;
+      cancelBtn.style.display = cancelText ? '' : 'none';
+      cancelBtn.textContent = cancelText || '';
+
+      overlay.classList.add('open');
+
+      function cleanup(result) {
+        overlay.classList.remove('open');
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        overlay.removeEventListener('click', onOverlayClick);
+        resolve(result);
+      }
+      function onOk() { cleanup(true); }
+      function onCancel() { cleanup(false); }
+      function onOverlayClick(e) { if (e.target === overlay) cleanup(false); }
+
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+      overlay.addEventListener('click', onOverlayClick);
+    });
+  }
+
+  function showConfirm(title, text) {
+    return showModal({ title, text, confirmText: 'Delete', cancelText: 'Cancel', danger: true });
+  }
+
+  function showAlert(title, text) {
+    return showModal({ title, text, confirmText: 'OK', cancelText: null });
+  }
+
   async function removeDocument(name) {
-    if (!confirm(`Delete "${name}"? This removes it from the knowledge base too.`)) return;
+    const confirmed = await showConfirm(
+      'Delete document?',
+      `Delete <strong>${escapeHtml(name)}</strong>? This removes it from the knowledge base too.`
+    );
+    if (!confirmed) return;
     const res = await fetch(`/api/documents/${encodeURIComponent(name)}`, { method: 'DELETE' });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      alert(data.detail || `Could not delete ${name}.`);
+      await showAlert('Could not delete', data.detail || `Could not delete ${name}.`);
     }
     loadDocuments();
   }
